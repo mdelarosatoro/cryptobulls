@@ -48,6 +48,7 @@ async (req, res) => {
     }
 })
 
+//get all users on the db, should have admin permission
 router.get('/', async (req, res) => {
     try {
         const users = await Users.find({});
@@ -56,6 +57,25 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({error: error.message});
+    }
+})
+
+//get current user information
+router.get('/my-info', async (req, res) => {
+    try {
+        const { userId, email, name, lastName } = req.user;
+
+        const payload = {
+            userId,
+            email,
+            name,
+            lastName,
+        };
+
+        res.status(200).json(payload);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: error.message})
     }
 })
 
