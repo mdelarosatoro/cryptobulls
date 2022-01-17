@@ -6,17 +6,19 @@ import { useNavigate, Link } from 'react-router-dom';
 
 const Container = styled.main`
     background: rgb(10,20,69);
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     display: flex;
     justify-content: center;
     `;
     
-const LoginContainer = styled.div`
+const RegisterContainer = styled.div`
     width: 650px;
-    height: 450px;
+    height: fit-content;
     border: 1px solid white;
+    padding: 40px;
     margin-top: 120px;
+    margin-bottom: 120px;
     background-color: rgba(60,20,120, 0.6);
     border-radius: 40px;
     transition: 0.3s ease all;
@@ -30,7 +32,7 @@ const LoginContainer = styled.div`
     }
 `;
 
-const LoginTitle = styled.span`
+const RegisterTitle = styled.span`
     font-size: 3rem;
     margin-top: -1rem;
     margin-bottom: 1rem;
@@ -72,15 +74,15 @@ const Button = styled.button`
     background-color: rgb(180,180,180);
 `;
 
-const ErrorMsg = styled.p`
-    color: red;
-    margin-bottom: 1rem;
-`;
-
 function Login() {
-    const [email, setEmail] = useState('');
+    const [userId, setUserId] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMsg, setErrorMsg] = useState('');
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [dateOfBirth, setDateOfBirth] = useState('');
+    const [country, setCountry] = useState('');
+
 
     const navigate = useNavigate();
 
@@ -89,12 +91,41 @@ function Login() {
     const userInfo = useSelector(state => state.auth);
 
     useEffect(() => {
+        console.log(userInfo);
         if (userInfo.email !== '') {
             navigate('/');
         }
-    })
+    },[userInfo])
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
+        const payload = {
+            userId,
+            password,
+            email,
+            name,
+            lastName,
+            dateOfBirth,
+            country
+        }
+
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify(payload),
+        };
+
+        const response = await fetch('/users/create', options);
+        const result = await response.json();
+        
+        console.log(response);
+        console.log(result);
+
+        loginNewUser(payload.email, payload.password)
+    }
+
+    const loginNewUser = async (email, password) => {
         const payload = {
             email,
             password,
@@ -110,9 +141,6 @@ function Login() {
 
         const response = await fetch('/login', options);
         const result = await response.json();
-        
-        console.log(response);
-        console.log(result);
 
         if (result.token) {
             const token = result.token;
@@ -131,28 +159,18 @@ function Login() {
             if (myInfoResult) {
                 dispatch(login(myInfoResult));
             }
-        } else {
-            setErrorMsg(result.error);
         }
     }
 
-    // useEffect(() => {
-    //     if (userInfo.email !== '') {
-    //         //history push into dashboard
-    //     }
-    // },[userInfo])
-
     return (
         <Container>
-            <LoginContainer>
+            <RegisterContainer>
 
-                <LoginTitle>Login</LoginTitle>
-
-                {errorMsg && <ErrorMsg>Error: {errorMsg}</ErrorMsg>}
+                <RegisterTitle>Register</RegisterTitle>
 
                 <FieldContainer>
-                    <FieldName>Email</FieldName>
-                    <Input type='email' onChange={(e) => setEmail(e.target.value)} value={email} />
+                    <FieldName>User ID</FieldName>
+                    <Input type='text' onChange={(e) => setUserId(e.target.value)} value={userId} />
                 </FieldContainer>
 
                 <FieldContainer>
@@ -160,14 +178,38 @@ function Login() {
                     <Input type='password' onChange={(e) => setPassword(e.target.value)} value={password} />
                 </FieldContainer>
 
+                <FieldContainer>
+                    <FieldName>Email</FieldName>
+                    <Input type='email' onChange={(e) => setEmail(e.target.value)} value={email} />
+                </FieldContainer>
+
+                <FieldContainer>
+                    <FieldName>Name</FieldName>
+                    <Input type='text' onChange={(e) => setName(e.target.value)} value={name} />
+                </FieldContainer>
+
+                <FieldContainer>
+                    <FieldName>Last Name</FieldName>
+                    <Input type='text' onChange={(e) => setLastName(e.target.value)} value={lastName} />
+                </FieldContainer>
+
+                <FieldContainer>
+                    <FieldName>Date Of Birth</FieldName>
+                    <Input type='text' onChange={(e) => setDateOfBirth(e.target.value)} value={dateOfBirth} />                </FieldContainer>
+
+                <FieldContainer>
+                    <FieldName>Country</FieldName>
+                    <Input type='text' onChange={(e) => setCountry(e.target.value)} value={country} />
+                </FieldContainer>
+
                 <ButtonContainer>
-                    <Button onClick={handleLogin}>Login</Button>
-                    <Link to='/register'>
-                        <Button>Register</Button>
+                    <Link to='/login'>
+                        <Button>Login</Button>
                     </Link>
+                    <Button onClick={handleRegister}>Register</Button>
                 </ButtonContainer>
 
-            </LoginContainer>
+            </RegisterContainer>
         </Container>
     )
 }

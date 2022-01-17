@@ -36,6 +36,7 @@ async (req, res) => {
                 lastName,
                 dateOfBirth,
                 country,
+                portfolio: [],
                 admin: true
             });
             await newUser.save();
@@ -63,16 +64,57 @@ router.get('/', async (req, res) => {
 //get current user information
 router.get('/my-info', async (req, res) => {
     try {
-        const { userId, email, name, lastName } = req.user;
+        const { userId, email, name, lastName, portfolio } = req.user;
 
         const payload = {
             userId,
             email,
             name,
             lastName,
+            portfolio,
         };
 
         res.status(200).json(payload);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: error.message})
+    }
+})
+
+//toggle coin on portfolio
+router.get('/toggle-coin-portfolio/:coinId', async (req, res) => {
+    try {
+        const { coinId } = req.params;
+        const { email } = req.user;
+
+        const userInDb = await Users.findOne({ email });
+
+        const userPortfolio = userInDb.portfolio.filter(item => item !== undefined);
+
+        if (userPortfolio.some(item => item === coinId)) {
+            const newPortfolio = userPortfolio.filter(item => item !== coinId);
+            userInDb.portfolio = newPortfolio;
+            userInDb.save();
+            res.status(200).json(`Coin ${coinId} removed from portfolio succesfully.`);
+        } else {
+            userPortfolio.push(coinId);
+            userInDb.portfolio = userPortfolio;
+            userInDb.save();
+            res.status(200).json(`Coin ${coinId} added from portfolio succesfully.`);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: error.message})
+    }
+});
+
+router.get('/portfolio', async (req, res) => {
+    try {
+        const { email } = req.user;
+
+        const userInDb = await Users.findOne({ email });
+
+        res.status(200).json(userInDb.portfolio);
     } catch (error) {
         console.error(error);
         res.status(500).json({error: error.message})

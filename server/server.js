@@ -24,6 +24,7 @@ app.use(expressJwt({
 );
 
 //routes
+// app.use('/api/v1', routes);
 app.use('/login', routes.loginRoutes);
 app.use('/users', routes.userRoutes);
 

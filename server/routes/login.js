@@ -27,6 +27,7 @@ router.post('/', async (req, res) => {
                         email: possibleUser.email,
                         name: possibleUser.name,
                         lastName: possibleUser.lastName,
+                        portfolio: possibleUser.portfolio,
                     },
                     process.env.JWT_SECRET,
                     { expiresIn: '60m' })

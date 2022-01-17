@@ -8,6 +8,7 @@ const Users = mongoose.model('users', {
     lastName: String,
     dateOfBirth: String,
     country: String,
+    portfolio: Array,
     admin: Boolean,
 })
 
